@@ -4,7 +4,7 @@
 The objective of this lab was to create a mathematical formulation and simulate two-wheeled robots, more specifically a Segway and a Paperbot, each with a wheel diameter *d* and width *w*. The computational simulation was made to simulate either Segway or Paperbot in a rectangular environment with 4 walls and boundaries specified by *xW*, *xE*, *yN*, *yS*, representing the west, east, north, and south wall limits respecively.
 
 **Mathematical Formulations**
-* [Math Formulation]() //Include link to math formulation here
+* [Math Formulation](Capstone_Joint_Assignment_1_Write_Up.pdf)
 
 
 ## Usage 
@@ -20,8 +20,16 @@ positions  of the walls, respectively
 * *dt*, the sample period  
 
 ```python
-# Insert code on how to use simulation here
+# Installation Packages
+pip install keyboard
+pip install pygame
+
+# Run Simulation, Using User-Input Arrow Keys
+python ./paperbot.py
 ```
+
+### Installation
+The simulation requires packages keyboard and pygame. 
 
 ## Hardware
 ---
@@ -34,6 +42,8 @@ positions  of the walls, respectively
   * Laser Range Sensor: [GYVL53L0X](https://www.st.com/resource/en/datasheet/vl53l0x.pdf)
   * IMU: [MPU9250](https://invensense.tdk.com/products/motion-tracking/9-axis/mpu-9250/?fbclid=IwAR3oB_TRBq6vESyrCZcruXoCS__1Q0_s-4oi9rOmKmrxwR31XUUP7iYXZNA)
 
-
+## Simulation Video
+---
+[Moving Robot](https://drive.google.com/file/d/15Ngqlc0fzkjXBNw1BdblkG5iG976Lxk5/view?usp=sharing)
 
 

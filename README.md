@@ -20,8 +20,16 @@ positions  of the walls, respectively
 * *dt*, the sample period  
 
 ```python
-# Insert code on how to use simulation here
+# Installation Packages
+pip install keyboard
+pip install pygame
+
+# Run Simulation, Using User-Input Arrow Keys
+python ./paperbot.py
 ```
+
+### Installation
+The simulation requires packages keyboard and pygame. 
 
 ## Hardware
 ---
@@ -34,6 +42,8 @@ positions  of the walls, respectively
   * Laser Range Sensor: [GYVL53L0X](https://www.st.com/resource/en/datasheet/vl53l0x.pdf)
   * IMU: [MPU9250](https://invensense.tdk.com/products/motion-tracking/9-axis/mpu-9250/?fbclid=IwAR3oB_TRBq6vESyrCZcruXoCS__1Q0_s-4oi9rOmKmrxwR31XUUP7iYXZNA)
 
-
+## Simulation
+---
+[Moving Robot](simulation.png)(https://drive.google.com/file/d/15Ngqlc0fzkjXBNw1BdblkG5iG976Lxk5/view?usp=sharing)
 
 

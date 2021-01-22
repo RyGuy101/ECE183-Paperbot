@@ -51,7 +51,7 @@ class Bot:
         next_state_mean[1] = self.state[1] + dy
         next_state_mean[2] = self.state[2] + dtheta
 
-        return next_state_mean, np.diag([(dx**2)*(0.03**2), (dy**2)*(0.03**2), (dtheta**2)*(0.03**2)])
+        return next_state_mean, np.diag([(dx**2)*(0.1**2), (dy**2)*(0.1**2), (dtheta**2)*(0.1**2)])
 
     def output_mean_and_cov(self, u):
         output_mean = np.zeros(5)
@@ -60,15 +60,19 @@ class Bot:
         output_mean[2] = self.robot_angular_velocity(u)
         output_mean[3:5] = self.expected_magnetometer_measurement()
 
-        return \
-            output_mean, \
-            np.diag([ # TODO sensor noise
-                0,
-                0,
-                0,
-                0,
-                0
-            ])
+        var_dr = (25/2)**2
+        if output_mean[0] >= 5000:
+            var_dr = (100/2)**2
+        var_df = (25/2)**2
+        if output_mean[1] >= 5000:
+            var_df = (100/2)**2
+        
+        var_theta = ((math.radians(0.005) / math.sqrt(self.dt)) + math.radians(0.04))**2
+
+        var_bx = ((0.0004/math.sqrt(self.dt)) + 0.003)**2
+        var_by = ((0.0004/math.sqrt(self.dt)) + 0.003)**2
+
+        return output_mean, np.diag([var_dr, var_df, var_theta, var_bx, var_by])
 
     def pwm_to_wheel_angular_velocity(self, pwm):
         # if abs(pwm) > 0.05625:
@@ -151,7 +155,8 @@ class Bot:
         return min(ew_wall_dist, nw_wall_dist) - self.Df
 
     def expected_magnetometer_measurement(self):
-        return np.zeros(2)
+        B_E = 0.4 # between 0.3 and 0.6 Gauss
+        return np.array([B_E*math.cos(-self.state[2]), B_E*math.sin(-self.state[2])])
 
     def add_noise(self, mean, cov):
         return np.random.multivariate_normal(mean, cov)

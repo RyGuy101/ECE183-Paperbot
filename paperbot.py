@@ -13,7 +13,7 @@ import pygame, sys
 from pygame.locals import *
 
 class Bot:
-    def __init__(self, xW=-500, xE=0, yN=0, yS=-500, d=50, w=90, Dr=0, Df=0, max_wheel_speed=2*math.pi*130, dt=0.1, init_state=np.array([-250.0, -250.0, 0.0])):
+    def __init__(self, xW=-500, xE=0, yN=0, yS=-500, d=50, w=90, Dr=0, Df=0, max_wheel_speed=2*math.pi*130/60, dt=0.1, init_state=np.array([-250.0, -250.0, 0.0])):
         self.xW = xW # western wall position
         self.xE = xE # eastern wall position
         self.yN = yN # northern wall position
@@ -75,10 +75,10 @@ class Bot:
         return output_mean, np.diag([var_dr, var_df, var_theta, var_bx, var_by])
 
     def pwm_to_wheel_angular_velocity(self, pwm):
-        # if abs(pwm) > 0.05625:
-            return (self.max_wheel_speed*pwm) * (1 - 0.4*pwm)
-        # else:
-        #     return 0
+        if abs(pwm) > 0.05625:
+            return (self.max_wheel_speed*pwm) * (1 - 0.4*abs(pwm))
+        else:
+            return 0
 
     def robot_angular_velocity(self, u):
         return (self.d/2)*(self.pwm_to_wheel_angular_velocity(u[1]) - self.pwm_to_wheel_angular_velocity(u[0]))/self.w
@@ -179,17 +179,17 @@ def main():
     while True:
         u = np.zeros(2)
         if keyboard.is_pressed('up arrow'):
-            u[0] = 0.01
-            u[1] = 0.01
+            u[0] = 0.5
+            u[1] = 0.5
         elif keyboard.is_pressed('down arrow'):
-            u[0] = -0.01
-            u[1] = -0.01
+            u[0] = -0.5
+            u[1] = -0.5
         elif keyboard.is_pressed('left arrow'):
-            u[0] = -0.01
-            u[1] = 0.01
+            u[0] = -0.5
+            u[1] = 0.5
         elif keyboard.is_pressed('right arrow'):
-            u[0] = 0.01
-            u[1] = -0.01
+            u[0] = 0.5
+            u[1] = -0.5
         
         output = paperbot.iterate(u)
 

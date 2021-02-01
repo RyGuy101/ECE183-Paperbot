@@ -5,15 +5,22 @@
 # d = 50mm, w = 90mm
 # unit of length is mm
 
+# Questions for TA
+# - Any hints for what actuator nonlinearity / noise should look like? Is our model ok?
+# - Should we have intentional differences between segway & paperbot in simulation, such as actuator noise?
+# - When we analyze sensors, should we simulate any noise that is not strictly independent at each time step (like bias)
+
 import numpy as np
 import math
 import time
 import keyboard
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame, sys
 from pygame.locals import *
 
 class Bot:
-    def __init__(self, xW=-500, xE=0, yN=0, yS=-500, d=50, w=90, Dr=0, Df=0, max_wheel_speed=2*math.pi*130/60, dt=0.1, init_state=np.array([-250.0, -250.0, 0.0])):
+    def __init__(self, xW, yS, d, w, Dr, Df, init_state, xE=0, yN=0, max_wheel_speed=2*math.pi*130/60, dt=0.1):
         self.xW = xW # western wall position
         self.xE = xE # eastern wall position
         self.yN = yN # northern wall position
@@ -23,9 +30,8 @@ class Bot:
         self.Dr = Dr # right distance sensor offset
         self.Df = Df # front distance sensor offset
         self.max_wheel_speed = max_wheel_speed
-        # Above distance sensor offsets unknown for now
         self.dt = dt # sample period
-        self.state = init_state
+        self.state = np.array(init_state, dtype=np.float64)
 
     def iterate(self, u):
         next_state_mean, next_state_cov = self.next_state_mean_and_cov(u)
@@ -51,7 +57,19 @@ class Bot:
         next_state_mean[1] = self.state[1] + dy
         next_state_mean[2] = self.state[2] + dtheta
 
-        return next_state_mean, np.diag([(dx**2)*(0.1**2), (dy**2)*(0.1**2), (dtheta**2)*(0.1**2)])
+        # Approximate the robot as a circle with diameter w for collisions
+        if next_state_mean[0] < self.xW + self.w/2:
+            next_state_mean[0] = self.xW + self.w/2
+        elif next_state_mean[0] > self.xE - self.w/2:
+            next_state_mean[0] = self.xE - self.w/2
+
+        if next_state_mean[1] < self.yS + self.w/2:
+            next_state_mean[1] = self.yS + self.w/2
+        elif next_state_mean[1] > self.yN - self.w/2:
+            next_state_mean[1] = self.yN - self.w/2
+
+        percent_noise = 0.01 # TODO how much actuator noise?
+        return next_state_mean, np.diag([(dx**2)*(percent_noise**2), (dy**2)*(percent_noise**2), (dtheta**2)*(percent_noise**2)])
 
     def output_mean_and_cov(self, u):
         output_mean = np.zeros(5)
@@ -168,44 +186,55 @@ def rotate_vector(v, radians):
     yy = -x * math.sin(radians) + y * math.cos(radians)
     return np.array([xx, yy])
 
-def main():
-    paperbot = Bot()
-
+def run_sim(bot, pixels_per_millimeter, inputs=None, real_time=True):
+    ppm = pixels_per_millimeter
     pygame.init()
-    DISPLAY=pygame.display.set_mode((-paperbot.xW, -paperbot.yS), 0, 32)
+    DISPLAY=pygame.display.set_mode(np.rint(np.array([-bot.xW, -bot.yS])*ppm).astype(int), 0, 32)
     WHITE=(255,255,255)
     BLUE=(0,0,255)
-    
-    while True:
+
+    print("i", "time", "PWM_l", "PWM_r", "x", "y", "theta", sep=",")
+
+    t = 0
+    next_time = time.time()
+    while inputs is None or t < len(inputs):
         u = np.zeros(2)
-        if keyboard.is_pressed('up arrow'):
-            u[0] = 0.5
-            u[1] = 0.5
-        elif keyboard.is_pressed('down arrow'):
-            u[0] = -0.5
-            u[1] = -0.5
-        elif keyboard.is_pressed('left arrow'):
-            u[0] = -0.5
-            u[1] = 0.5
-        elif keyboard.is_pressed('right arrow'):
-            u[0] = 0.5
-            u[1] = -0.5
+
+        if inputs is None:
+            if keyboard.is_pressed('up arrow'):
+                u[0] = 0.5
+                u[1] = 0.5
+            elif keyboard.is_pressed('down arrow'):
+                u[0] = -0.5
+                u[1] = -0.5
+            elif keyboard.is_pressed('left arrow'):
+                u[0] = -0.5
+                u[1] = 0.5
+            elif keyboard.is_pressed('right arrow'):
+                u[0] = 0.5
+                u[1] = -0.5
+        else:
+            u = inputs[t]
         
-        output = paperbot.iterate(u)
+        # Robot Stuff
+        # print stuff
+        print(t, t*bot.dt, u[0],u[1],bot.state[0],bot.state[1],bot.state[2], sep=",")
+        t = t + 1
+        output = bot.iterate(u)
 
         DISPLAY.fill(WHITE)
 
-        rect_center = np.array([-paperbot.xW + paperbot.state[0], -paperbot.state[1]])
+        rect_center = np.array([-bot.xW + bot.state[0], -bot.state[1]])
 
         rect_points = [
-            np.array([-paperbot.d/2, -paperbot.w/2]),
-            np.array([-paperbot.d/2, +paperbot.w/2]),
-            np.array([+paperbot.d/2, +paperbot.w/2]),
-            np.array([+paperbot.d/2, -paperbot.w/2])
+            np.array([-bot.d/2, -bot.w/2]),
+            np.array([-bot.d/2, +bot.w/2]),
+            np.array([+bot.d/2, +bot.w/2]),
+            np.array([+bot.d/2, -bot.w/2])
         ]
 
         for i in range(len(rect_points)):
-            rect_points[i] = rect_center + rotate_vector(rect_points[i], paperbot.state[2])
+            rect_points[i] = np.rint((rect_center + rotate_vector(rect_points[i], bot.state[2]))*ppm).astype(int)
 
         pygame.draw.polygon(DISPLAY, BLUE, rect_points)
         for event in pygame.event.get():
@@ -214,6 +243,39 @@ def main():
                 sys.exit()
         pygame.display.update()
 
-        time.sleep(paperbot.dt)
+        if real_time:
+            next_time += bot.dt
+            delay = next_time - time.time()
+            if (delay > 0):
+                time.sleep(delay)
 
-main()
+
+def make_paperbot(init_state=[-500,-500,0], dt=0.1):
+    # TODO distance sensor offsets Dr and Df unknown for now
+    return Bot(xW=-1000, yS=-1000, d=50, w=90, Dr=0, Df=0, init_state=init_state, dt=dt)
+
+def make_segway(init_state=[-5000,-5000,0], dt=0.1):
+    # TODO distance sensor offsets Dr and Df unknown for now
+    return Bot(xW=-10000, yS=-10000, d=502, w=530, Dr=0, Df=0, init_state=init_state, dt=dt)
+
+
+PAPERBOT_PIXELS_PER_MM = 0.7
+SEGWAY_PIXELS_PER_MM = 0.7
+
+def paperbot_interactive():
+    run_sim(make_paperbot(), PAPERBOT_PIXELS_PER_MM)
+
+def segway_interactive():
+    run_sim(make_segway(), SEGWAY_PIXELS_PER_MM)
+
+def paperbot_figure_eight():
+    inputs = []
+    inputs += [[0.5, 0.25]]*48
+    inputs += [[0.25, 0.5]]*96
+    inputs += [[0.5, 0.25]]*96
+    inputs += [[0.25, 0.5]]*96
+    inputs += [[0.5, 0.25]]*48
+    run_sim(make_paperbot(init_state=[-900,-500,math.pi/2]), PAPERBOT_PIXELS_PER_MM, inputs)
+
+
+paperbot_figure_eight()

@@ -21,6 +21,7 @@ import pygame, sys
 from pygame.locals import *
 import matplotlib
 from scipy.io import savemat
+import trajectories
 
 class Bot:
     def __init__(self, xW, yS, d, w, Dr, Df, init_state, xE=0, yN=0, max_wheel_speed=2*math.pi*130/60, dt=1/125, init_state_solidworks=False, init_state_webots=False):
@@ -219,7 +220,7 @@ def rotate_vector(v, radians):
     yy = -x * math.sin(radians) + y * math.cos(radians)
     return np.array([xx, yy])
 
-def run_sim(bot, pixels_per_millimeter, inputs=None, real_time=True, name="no_name"):
+def run_sim(bot, pixels_per_millimeter, inputs=None, name="no_name", real_time=True):
     ppm = pixels_per_millimeter
     pygame.init()
     DISPLAY=pygame.display.set_mode(np.rint(np.array([-bot.xW, -bot.yS])*ppm).astype(int), 0, 32)
@@ -356,20 +357,6 @@ def make_segway(init_state=[-5000,-5000,0,0], **kwargs):
     # TODO distance sensor offsets Dr and Df unknown for now
     return Bot(xW=-10000, yS=-10000, d=502, w=530, Dr=0, Df=0, init_state=init_state, **kwargs)
 
-def make_input(points, dt):
-    assert(points[0][0] == 0)
-    input = [points[0][1]]
-    for i in range(1, len(points)):
-        point = points[i]
-        start_t = len(input)-1
-        end_t = int(point[0]//dt)
-        slope = (point[1]-input[start_t])/(end_t-start_t)
-        for t in range(start_t+1, end_t):
-            input.append(slope*(t-start_t) + input[start_t])
-        input.append(point[1])
-    return input
-
-
 PAPERBOT_PIXELS_PER_MM = 0.7
 SEGWAY_PIXELS_PER_MM = 0.07
 
@@ -379,230 +366,15 @@ def paperbot_interactive():
 def segway_interactive():
     run_sim(make_segway(), SEGWAY_PIXELS_PER_MM)
 
-def paperbot_figure_eight():
-    inputs = []
-    inputs += [[0.5, 0.25]]*480
-    inputs += [[0.25, 0.5]]*960
-    inputs += [[0.5, 0.25]]*960
-    inputs += [[0.25, 0.5]]*960
-    inputs += [[0.5, 0.25]]*480
-    run_sim(make_paperbot(init_state=[-900,-500,math.pi/2,0]), PAPERBOT_PIXELS_PER_MM, inputs)
+def webots_paperbot_sim(name, dt, init_state, input):
+    bot = make_paperbot(init_state=init_state, init_state_webots=True, dt=dt)
+    run_sim(bot, PAPERBOT_PIXELS_PER_MM, input, name)
 
-# SolidWorks tests:
-def paperbot_trajectory_1(): # Megan's PaperBot
-    input = [
-        [0.0, np.array([0.0, 0.0])],
-        [0.5, np.array([500.0, 500.0])],
-        [1.0, np.array([500.0, 500.0])],
-        [2.0, np.array([100.0, 500.0])],
-        [2.5, np.array([100.0, 500.0])],
-        [3.0, np.array([-300.0, -300.0])],
-        [3.5, np.array([-300.0, -300.0])],
-        [4.0, np.array([500.0, 0.0])],
-        [4.5, np.array([500.0, 0.0])],
-        [5.0, np.array([500.0, 500.0])]
-    ]                              # x     y      angular displacements
-    bot = make_paperbot(init_state=[402.897777478867,300.0,-15,0], init_state_solidworks=True)
-    run_sim(bot, PAPERBOT_PIXELS_PER_MM, make_input(input, bot.dt))
+def webots_segway_sim(name, dt, init_state, input):
+    bot = make_segway(init_state=init_state, init_state_webots=True, dt=dt)
+    run_sim(bot, SEGWAY_PIXELS_PER_MM, input, name)
 
-def paperbot_trajectory_2(): # Laurens's PaperBot
-    input = [
-        [0.0, np.array([0.0, 0.0])],
-        [0.5, np.array([450.0, 270.0])],
-        [1.0, np.array([0.0, 270.0])],
-        [1.5, np.array([0.0, -100.0])],
-        [2.0, np.array([-100.0, -200.0])],
-        [2.5, np.array([450.0, 200.0])],
-        [3.0, np.array([450.0, 200.0])]
-    ]                              # x     y      angular displacements
-    bot = make_paperbot(init_state=[401.190069694331,301.354154393942,-15,0], init_state_solidworks=True)
-    run_sim(bot, PAPERBOT_PIXELS_PER_MM, make_input(input, bot.dt))
-
-def paperbot_trajectory_3(): # Cheryl's PaperBot
-    input = [
-        [0.0, np.array([25.0, 100.0])],
-        [1.0, np.array([100.0, 500.0])],
-        [2.0, np.array([25.0, 600.0])],
-        [3.0, np.array([150.0, 20.0])],
-        [4.0, np.array([500.0, 0.0])],
-        [5.0, np.array([300.0, 100.0])]
-    ]                              # x     y      angular displacements
-    bot = make_paperbot(init_state=[497.0,300.0,4.9e-18,0], init_state_solidworks=True)
-    run_sim(bot, PAPERBOT_PIXELS_PER_MM, make_input(input, bot.dt))
-
-def segway_trajectory_1(): # Megan's Segway 
-    input = [
-        [0.0, np.array([0.0, 0.0])],
-        [0.5, np.array([0.0, -300.0])],
-        [1.0, np.array([0.0, 0.0])],
-        [1.5, np.array([300.0, 300.0])],
-        [2.0, np.array([300.0, 300.0])],
-        [2.5, np.array([100.0, 400.0])],
-        [3.0, np.array([300.0, 300.0])],
-        [4.0, np.array([400.0, 100.0])],
-        [5.0, np.array([400.0, 100.0])]
-    ]                            # x      y       angular displacements
-    bot = make_segway(init_state=[1500.00,2000.00,-15,0], init_state_solidworks=True, dt=0.02564102564)
-    run_sim(bot, SEGWAY_PIXELS_PER_MM, make_input(input, bot.dt))
-
-def segway_trajectory_2(): # Laurens's Segway
-    input = [
-        [0.0, np.array([0.0, 0.0])],
-        [0.5, np.array([450.0, 270.0])],
-        [1.0, np.array([0.0, 270.0])],
-        [1.5, np.array([0.0, -100.0])],
-        [2.0, np.array([-100.0, -200.0])],
-        [2.5, np.array([450.0, 200.0])],
-        [3.0, np.array([450.0, 200.0])]
-    ]                            # x      y       angular displacements
-    bot = make_segway(init_state=[1500.00,2000.00,-15,0], init_state_solidworks=True, dt=0.02727272727)
-    run_sim(bot, SEGWAY_PIXELS_PER_MM, make_input(input, bot.dt))
-
-def segway_trajectory_3(): # Cheryl's Segway
-    input = [
-        [0.0, np.array([400.0, 400.0])],
-        [0.5, np.array([500.0, 500.0])],
-        [1.0, np.array([100.0, 300.0])],
-        [1.5, np.array([150.0, 100.0])],
-        [2.0, np.array([200.0, 200.0])],
-        [2.5, np.array([600.0, 150.0])],
-        [3.0, np.array([250.0, 400.0])],
-        [3.5, np.array([300.0, 550.0])],
-        [4.0, np.array([400.0, 500.0])],
-        [4.5, np.array([200.0, 600.0])],
-        [5.0, np.array([100.0, 550.0])]
-    ]                            # x      y       angular displacements
-    bot = make_segway(init_state=[1500.00,2000.00,-15,0], init_state_solidworks=True, dt=0.02403846153)
-    run_sim(bot, SEGWAY_PIXELS_PER_MM, make_input(input, bot.dt))
-
-# Megan's Trajectories
-# paperbot_trajectory_1()
-# segway_trajectory_1()
-
-# Laurens's Trajectories
-# paperbot_trajectory_2()
-# segway_trajectory_2()
-
-# Cheryl's Trajectories
-# paperbot_trajectory_3()
-
-# Webots tests:
-def webots_paperbot_1():
-    input = [
-        [ 0, np.array([0, 0])],
-        [ 2, np.array([-4, -4])],
-        [ 4, np.array([-4, -4])],
-        [ 8, np.array([-1, -4])],
-        [10, np.array([-1, -4])],
-        [12, np.array([2, 2])],
-        [14, np.array([2, 2])],
-        [16, np.array([-4, 0])],
-        [18, np.array([-4, 0])],
-        [20, np.array([-4, -4])]
-    ]
-    bot = make_paperbot(init_state=[0.25,0.3,0,0], init_state_webots=True, dt=0.002)
-    run_sim(bot, PAPERBOT_PIXELS_PER_MM, make_input(input, bot.dt), name='paperbot_1')
-
-def webots_paperbot_2():
-    input = [
-        [ 0, np.array([0, 0])],
-        [ 2, np.array([7.853981634, 4.71238898])],
-        [ 4, np.array([0, 4.71238898])],
-        [ 6, np.array([0, -1.745329252])],
-        [ 8, np.array([-1.745329252, -3.490658504])],
-        [10, np.array([7.853981634, 3.490658504])],
-        [12, np.array([7.853981634, 3.490658504])],
-        [14, np.array([0, 0])]
-    ]
-    bot = make_paperbot(init_state=[-0.15,-0.1,0,0], init_state_webots=True, dt=0.01)
-    run_sim(bot, PAPERBOT_PIXELS_PER_MM, make_input(input, bot.dt), name='paperbot_2')
-
-def webots_paperbot_3():
-    input = [
-        [ 0, np.array([-0.563667687, -1.745329252])],
-        [ 2, np.array([0.745329252, -8.72664626])],
-        [ 4, np.array([-0.563667687, -10.47197551])],
-        [ 6, np.array([1.617993878, -0.3490658504])],
-        [ 8, np.array([7.72664626, 0])],
-        [10, np.array([4.235987756, -0.1745329252])],
-        [12, np.array([0, 0])]
-    ]
-    bot = make_paperbot(init_state=[0,0,0,0], init_state_webots=True, dt=0.01)
-    run_sim(bot, PAPERBOT_PIXELS_PER_MM, make_input(input, bot.dt), name='paperbot_3')
-
-def webots_paperbot_straight_and_turn():
-    input = [
-        [ 0, np.array([0, 0])],
-        [ 5, np.array([-3, -3])],
-        [ 7, np.array([0, -5])],
-        [10, np.array([0, -5])],
-    ]
-    bot = make_paperbot(init_state=[0,0.3,0,0], init_state_webots=True, dt=0.002)
-    run_sim(bot, PAPERBOT_PIXELS_PER_MM, make_input(input, bot.dt), name='paperbot_straight_and_turn')
-
-def webots_segway_4():
-    input = [
-        [ 0, np.array([0, 0])],
-        [ 2, np.array([0, 4])],
-        [ 4, np.array([0, 0])],
-        [ 6, np.array([-4, -4])],
-        [ 8, np.array([-4, -4])],
-        [10, np.array([-2, -6])],
-        [12, np.array([-4, -4])],
-        [16, np.array([-6, -2])],
-        [20, np.array([-6, -2])]
-    ]
-    bot = make_segway(init_state=[-1,3,0,0], init_state_webots=True, dt=0.002)
-    run_sim(bot, SEGWAY_PIXELS_PER_MM, make_input(input, bot.dt), name='segway_4')
-
-def webots_segway_5():
-    input = [
-        [ 0, np.array([0, 0])],
-        [ 2, np.array([7.853981634, 4.71238898])],
-        [ 4, np.array([0, 4.71238898])],
-        [ 6, np.array([0, -1.745329252])],
-        [ 8, np.array([-1.745329252, -3.490658504])],
-        [10, np.array([7.853981634, 3.490658504])],
-        [12, np.array([7.853981634, 3.490658504])],
-        [14, np.array([0, 0])],
-    ]
-    bot = make_segway(init_state=[0,0,0,0], init_state_webots=True, dt=0.002)
-    run_sim(bot, SEGWAY_PIXELS_PER_MM, make_input(input, bot.dt), name='segway_5')
-
-def webots_segway_6():
-    input = [
-        [ 0, np.array([3.490658504, 3.490658504])],
-        [ 2, np.array([4.36332313, 4.36332313])],
-        [ 4, np.array([0.872664626, 2.617993878])],
-        [ 6, np.array([1.308996939, 0.872664626])],
-        [ 8, np.array([1.745329252, 1.745329252])],
-        [10, np.array([5.235987756, 1.308996939])],
-        [12, np.array([2.181661565, 2.243994753])],
-        [14, np.array([2.617993878, 3.926990817])],
-        [16, np.array([3.490658504, 4.36332313])],
-        [18, np.array([1.745329252, 5.235987756])],
-        [20, np.array([0.872664626, 4.799655443])]
-    ]
-    bot = make_segway(init_state=[4,4,0,0], init_state_webots=True, dt=0.002)
-    run_sim(bot, SEGWAY_PIXELS_PER_MM, make_input(input, bot.dt), name='segway_6')
-
-def webots_segway_straight_and_turn():
-    input = [
-        [ 0, np.array([0, 0])],
-        [ 5, np.array([-3, -3])],
-        [ 7, np.array([0, -5])],
-        [10, np.array([0, -5])],
-    ]
-    bot = make_segway(init_state=[0,4,0,0], init_state_webots=True, dt=0.002)
-    run_sim(bot, SEGWAY_PIXELS_PER_MM, make_input(input, bot.dt), name='segway_straight_and_turn')
-
-webots_paperbot_1()
-webots_paperbot_2()
-webots_paperbot_3()
-webots_paperbot_straight_and_turn()
-webots_segway_4()
-webots_segway_5()
-webots_segway_6()
-webots_segway_straight_and_turn()
+# webots_paperbot_sim(*trajectories.webots_paperbot_1())
+webots_segway_sim(*trajectories.webots_segway_4_slow())
 
 # paperbot_interactive()

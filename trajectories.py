@@ -274,17 +274,17 @@ def webots_segway_21():
     name = 'segway_21'
     dt = 0.002
     init_state = [4, 4, 0, 0]
-    input = make_input_str("""0	-3.490658504	-3.490658504
-2	-4.36332313	-4.36332313
-4	-0.872664626	-2.617993878
-6	-1.308996939	-0.872664626
-8	-1.745329252	-1.745329252
-10	-5.235987756	-1.308996939
-12	-2.181661565	-2.243994753
-14	-2.617993878	-3.926990817
-16	-3.490658504	-4.36332313
-18	-1.745329252	-5.235987756
-20	-0.872664626	-4.799655443""", dt)
+    input = make_input_str("""0	0	0
+2	-1	-4
+4	-1	-3
+6	-1	-1
+8	-2	-2
+10	-5	-1
+12	-3	-2
+14	-3	-4
+16	-4	-4
+18	-2	-5
+20	-1	-5""", dt)
     return name, dt, init_state, input
 
 def webots_segway_22():
@@ -326,7 +326,7 @@ def webots_segway_25():
     name = 'segway_25'
     dt = 0.002
     init_state = [0, 0, 0, 0]
-    input = make_input_str("""0	0	-3
+    input = make_input_str("""0	0	0
 2	-1	-4
 4	-2	-3
 6	-3	-2
@@ -343,7 +343,7 @@ def webots_segway_26():
     name = 'segway_26'
     dt = 0.002
     init_state = [0, 0, 0, 0]
-    input = make_input_str("""0	1	-2
+    input = make_input_str("""0	0	0
 2	1	-1.5
 4	2	0
 6	2	2
@@ -360,7 +360,7 @@ def webots_segway_27():
     name = 'segway_27'
     dt = 0.002
     init_state = [0, 4, 0, 0]
-    input = make_input_str("""0	-1	-1
+    input = make_input_str("""0	0	0
 2	-1.5	-1.5
 4	-2	-2
 6	-2.5	-2.5
@@ -377,7 +377,7 @@ def webots_segway_28():
     name = 'segway_28'
     dt = 0.002
     init_state = [0, 0, 0, 0]
-    input = make_input_str("""0	1	1
+    input = make_input_str("""0	0	0
 2	1	1
 4	1	1
 6	1	1
@@ -394,7 +394,7 @@ def webots_segway_29():
     name = 'segway_29'
     dt = 0.002
     init_state = [4, 4, 0.785, 0]
-    input = make_input_str("""0	-1	-1
+    input = make_input_str("""0	0	0
 2	-1	-1
 4	-1	-1
 6	-1	-1
@@ -411,7 +411,7 @@ def webots_segway_30():
     name = 'segway_30'
     dt = 0.002
     init_state = [-4, 4, 5.498, 0]
-    input = make_input_str("""0	-1	-1
+    input = make_input_str("""0	0	0
 2	-1	-1
 4	-1	-1
 6	-1	-1
@@ -428,7 +428,7 @@ def webots_segway_31():
     name = 'segway_31'
     dt = 0.002
     init_state = [0, 3, 0, 0]
-    input = make_input_str("""0	-1	-3
+    input = make_input_str("""0	0	0
 2	-2	-3
 4	-3	-3
 6	-3	-3
@@ -445,7 +445,7 @@ def webots_segway_32():
     name = 'segway_32'
     dt = 0.002
     init_state = [3, -3, 2.356, 0]
-    input = make_input_str("""0	-1	-3
+    input = make_input_str("""0	0	0
 2	-2	-3
 4	-3	-3
 6	-3	-3
@@ -462,7 +462,7 @@ def webots_segway_33():
     name = 'segway_33'
     dt = 0.002
     init_state = [-3, -3, 3.927, 0]
-    input = make_input_str("""0	-1	-3
+    input = make_input_str("""0	0	0
 2	-2	-3
 4	-3	-3
 6	-3	-3
@@ -478,8 +478,8 @@ def webots_segway_33():
 def webots_segway_34():
     name = 'segway_34'
     dt = 0.002
-    init_state = [-3, 0, 0, 0]
-    input = make_input_str("""0	-4	-1
+    init_state = [0, 0, 0, 0]
+    input = make_input_str("""0	0	0
 2	-4	-1
 4	-4	-1
 6	-4	-1
@@ -495,8 +495,8 @@ def webots_segway_34():
 def webots_segway_35():
     name = 'segway_35'
     dt = 0.002
-    init_state = [3, 0, 0, 0]
-    input = make_input_str("""0	-1	-4
+    init_state = [0, 0, 0, 0]
+    input = make_input_str("""0	0	0
 2	-1	-4
 4	-1	-4
 6	-1	-4

@@ -181,7 +181,6 @@ def webots_paperbot_5():
     dt = 0.002
     init_state = [0,0,0,0]
     input = make_input_str("""0	0	0
-0	0	0
 2	0.872664626	0.872664626
 4	-5.235987756	-1.308996939
 6	2.617993878	0.3490658504
@@ -271,6 +270,72 @@ def webots_paperbot_12():
 6	-0.1745329252	-4.799655443
 8	1.745329252	-0.872664626
 10	-0.872664626	4.71238898""", dt)
+    return name, dt, init_state, input
+
+def webots_paperbot_13():
+    name = 'paperbot_13'
+    dt = 0.002
+    init_state = [0,0,0,0]
+    input = make_input_str("""0	0	0
+5	-3	-3
+7	0	-5
+10	0	-5
+15	3	3
+18	3	3""", dt)
+    return name, dt, init_state, input
+
+def webots_paperbot_14():
+    name = 'paperbot_14'
+    dt = 0.002
+    init_state = [0,0,0,0]
+    input = make_input_str("""0	0	0
+5	-3	-3
+7	0	-5
+10	0	-5
+15	3	3
+18	3	3""", dt)
+    return name, dt, init_state, input
+
+def webots_paperbot_15():
+    name = 'paperbot_15'
+    dt = 0.002
+    init_state = [0,0,0,0]
+    input = make_input_str("""0	0	0
+4	4	2
+8	4	4
+12	0	2
+15	0	2""", dt)
+    return name, dt, init_state, input
+
+def webots_paperbot_16():
+    name = 'paperbot_16'
+    dt = 0.002
+    init_state = [0,0,0,0]
+    input = make_input_str("""0	0	0
+8	2	1
+16	2	2
+24	0	1
+30	0	1""", dt)
+    return name, dt, init_state, input
+
+def webots_paperbot_17():
+    name = 'paperbot_17'
+    dt = 0.002
+    init_state = [0,0,0,0]
+    input = make_input_str("""0	0	0
+5	-3	-3
+10	0	0
+15	3	3""", dt)
+    return name, dt, init_state, input
+
+def webots_paperbot_18():
+    name = 'paperbot_18'
+    dt = 0.002
+    init_state = [0,0,0,0]
+    input = make_input_str("""0	0	0
+5	3	3
+10	0	0
+15	-3	-3""", dt)
     return name, dt, init_state, input
 
 # Archived Code:

@@ -14,6 +14,13 @@ def make_input(points, dt):
         input.append(np.array(point[1]))
     return input
 
+def make_input_str(input_str, dt):
+    points = []
+    for line in input_str.strip().split('\n'):
+        line = line.strip().split('\t')
+        points.append([float(line[0]), [float(line[1]), float(line[2])]])
+    return make_input(points, dt)
+
 # Webots tests:
 def webots_paperbot_1():
     name = 'paperbot_1'
@@ -74,8 +81,8 @@ def webots_paperbot_straight_and_turn():
     ], dt)
     return name, dt, init_state, input
 
-def webots_segway_4():
-    name = 'segway_4'
+def webots_segway_19(): # note: hits wall
+    name = 'segway_19'
     dt = 0.002
     init_state = [-1,3,0,0]
     input = make_input([
@@ -91,40 +98,21 @@ def webots_segway_4():
     ], dt)
     return name, dt, init_state, input
 
-def webots_segway_4_slow():
-    name = 'segway_4_slow'
-    dt = 0.002
-    init_state = [0,-3,0,0]
-    input = make_input([
-        [ 0, [0, 0]],
-        [ 4, [0, 2]],
-        [ 8, [0, 0]],
-        [12, [-2, -2]],
-        [16, [-2, -2]],
-        [20, [-1, -3]],
-        [24, [-2, -2]],
-        [32, [-3, -1]],
-        [40, [-3, -1]]
-    ], dt)
-    return name, dt, init_state, input
-
-def webots_segway_5():
-    name = 'segway_5'
+def webots_segway_20():
+    name = 'segway_20'
     dt = 0.002
     init_state = [0,0,0,0]
-    input = make_input([
-        [ 0, [0, 0]],
-        [ 2, [7.853981634, 4.71238898]],
-        [ 4, [0, 4.71238898]],
-        [ 6, [0, -1.745329252]],
-        [ 8, [-1.745329252, -3.490658504]],
-        [10, [7.853981634, 3.490658504]],
-        [12, [7.853981634, 3.490658504]]
-    ], dt)
+    input = make_input_str("""0	0	0
+2	7.853981634	4.71238898
+4	0	4.71238898
+6	0	-1.745329252
+8	-1.745329252	-3.490658504
+10	7.853981634	3.490658504
+12	7.853981634	3.490658504""", dt)
     return name, dt, init_state, input
 
-def webots_segway_6():
-    name = 'segway_6'
+def webots_segway_21():
+    name = 'segway_21'
     dt = 0.002
     init_state = [4,4,0,0]
     input = make_input([
@@ -161,6 +149,22 @@ def webots_segway_straight_and_turn():
     ], dt)
     return name, dt, init_state, input
 
+def webots_segway_4_slow():
+    name = 'segway_4_slow'
+    dt = 0.002
+    init_state = [0,-3,0,0]
+    input = make_input([
+        [ 0, [0, 0]],
+        [ 4, [0, 2]],
+        [ 8, [0, 0]],
+        [12, [-2, -2]],
+        [16, [-2, -2]],
+        [20, [-1, -3]],
+        [24, [-2, -2]],
+        [32, [-3, -1]],
+        [40, [-3, -1]]
+    ], dt)
+    return name, dt, init_state, input
 
 # Archived Code:
 

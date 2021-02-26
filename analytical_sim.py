@@ -375,6 +375,6 @@ def webots_segway_sim(name, dt, init_state, input):
     run_sim(bot, SEGWAY_PIXELS_PER_MM, input, name)
 
 # webots_paperbot_sim(*trajectories.webots_paperbot_1())
-webots_segway_sim(*trajectories.webots_segway_4_slow())
+webots_segway_sim(*trajectories.webots_segway_20())
 
 # paperbot_interactive()
